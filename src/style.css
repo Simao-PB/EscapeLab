@@ -49,3 +49,411 @@ canvas {
     font-size: 14px;
     pointer-events: none;
 }
+
+/* ========================================
+   ESCAPE LAB - HUD DE VIDAS
+======================================== */
+
+#vidas-hud {
+    position: fixed;
+    top: 20px;
+    right: 25px;
+
+    z-index: 9999;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 12px 20px;
+
+    background: rgba(8, 14, 28, 0.95);
+
+    border: 2px solid #00e5ff;
+    border-radius: 10px;
+
+    color: white;
+
+    font-family: Arial, sans-serif;
+    font-size: 20px;
+    font-weight: bold;
+
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+/* ========================================
+   ECRÃ DE GAME OVER
+======================================== */
+
+#game-over-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    width: 100vw;
+    height: 100vh;
+
+    z-index: 10000;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(3, 8, 20, 0.9);
+}
+
+/* ========================================
+   PAINEL DE GAME OVER
+======================================== */
+
+#game-over-painel {
+    width: 400px;
+    max-width: 90%;
+
+    padding: 40px;
+
+    background: #101827;
+
+    border: 2px solid #ff405d;
+    border-radius: 18px;
+
+    color: white;
+    text-align: center;
+
+    box-shadow: 0 0 40px rgba(255, 64, 93, 0.4);
+}
+
+#game-over-painel h2 {
+    margin-bottom: 20px;
+
+    color: #ff405d;
+
+    font-family: Arial, sans-serif;
+    font-size: 38px;
+    font-weight: bold;
+}
+
+#game-over-painel p {
+    margin-bottom: 25px;
+
+    color: #c8d5e8;
+
+    font-size: 18px;
+}
+
+/* ========================================
+   BOTÃO RECOMEÇAR
+======================================== */
+
+#botao-recomecar {
+    padding: 14px 30px;
+
+    background: #00cfff;
+
+    border: none;
+    border-radius: 8px;
+
+    color: #08101e;
+
+    font-size: 18px;
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition: background 0.2s;
+}
+
+#botao-recomecar:hover {
+    background: #7befff;
+}
+
+/* HUD dos terminais */
+
+#terminais-hud {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 9000;
+
+    padding: 10px 18px;
+
+    background: rgba(5, 15, 30, 0.9);
+    border: 2px solid #00d9ff;
+    border-radius: 8px;
+
+    color: #ffffff;
+    font-family: Arial, sans-serif;
+    font-size: 17px;
+    font-weight: bold;
+
+    pointer-events: none;
+}
+
+/* Mensagem de interação */
+
+#mensagem-terminal {
+    position: fixed;
+    bottom: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    z-index: 9000;
+    display: none;
+
+    padding: 12px 20px;
+
+    background: rgba(5, 15, 30, 0.95);
+    border: 2px solid #00ffba;
+    border-radius: 10px;
+
+    color: #00ffba;
+    font-family: Arial, sans-serif;
+    font-size: 18px;
+    font-weight: bold;
+
+    text-align: center;
+    pointer-events: none;
+}
+
+
+/* ========================================
+   MENU PRINCIPAL
+======================================== */
+
+.menu-acoes {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.botao-secundario {
+    background: rgba(0, 217, 255, 0.08);
+    color: #00d9ff;
+
+    border: 2px solid #00d9ff;
+}
+
+.botao-secundario:hover {
+    background: rgba(0, 217, 255, 0.18);
+    color: #ffffff;
+}
+
+/* ========================================
+   SELEÇÃO DE NÍVEIS
+======================================== */
+
+.lista-niveis {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+
+    margin: 30px 0;
+}
+
+.cartao-nivel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+
+    min-height: 190px;
+    padding: 22px 12px;
+
+    background: #0d2538;
+    border: 2px solid #00d9ff;
+    border-radius: 12px;
+
+    color: white;
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.cartao-nivel:not(:disabled):hover {
+    background: #16415b;
+    transform: translateY(-4px);
+    box-shadow: 0 0 20px rgba(0, 217, 255, 0.2);
+}
+
+.cartao-nivel:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    border-color: #617386;
+}
+
+.nivel-numero {
+    font-size: 48px;
+    font-weight: 900;
+    color: #00d9ff;
+}
+
+.cartao-nivel strong {
+    font-size: 15px;
+    letter-spacing: 1px;
+}
+
+.nivel-estado {
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.nivel-estado.disponivel {
+    color: #00ffab;
+}
+
+.nivel-estado.bloqueado {
+    color: #a2b0bd;
+}
+
+/* ========================================
+   CRÉDITOS
+======================================== */
+
+.painel-creditos {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+
+    padding: 22px;
+    margin: 20px 0 28px;
+
+    background: rgba(0, 15, 30, 0.65);
+
+    border: 1px solid #254963;
+    border-radius: 12px;
+
+    text-align: center;
+}
+
+.credito-grupo {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.credito-grupo span {
+    color: #00d9ff;
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+.credito-grupo strong {
+    color: #ffffff;
+    font-size: 16px;
+}
+
+.credito-grupo p {
+    color: #b5c8d8;
+    font-size: 13px;
+    margin: 0;
+}
+
+/* ========================================
+   RESPONSIVIDADE
+======================================== */
+
+@media (max-width: 500px) {
+    .lista-niveis {
+        grid-template-columns: 1fr;
+    }
+
+    .cartao-nivel {
+        min-height: 125px;
+    }
+
+    .nivel-numero {
+        font-size: 32px;
+    }
+}
+
+/* ========================================
+   BOTÕES DO ECRÃ GAME OVER
+======================================== */
+
+#game-over-painel #botao-recomecar,
+#game-over-painel #botao-voltar-menu-gameover {
+    display: block;
+
+    width: 100%;
+    max-width: 320px;
+
+    margin: 12px auto;
+    padding: 16px 24px;
+
+    box-sizing: border-box;
+    border-radius: 9px;
+
+    font-family: Arial, sans-serif;
+    font-size: 17px;
+    font-weight: bold;
+
+    text-align: center;
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+/* Botão RECOMEÇAR */
+
+#game-over-painel #botao-recomecar {
+    background: #00cfff;
+    color: #081624;
+    border: 2px solid #00cfff;
+}
+
+#game-over-painel #botao-recomecar:hover {
+    background: #75edff;
+}
+
+/* Botão VOLTAR AO MENU */
+
+#game-over-painel #botao-voltar-menu-gameover {
+    background: transparent;
+    color: #00cfff;
+    border: 2px solid #00cfff;
+}
+
+#game-over-painel #botao-voltar-menu-gameover:hover {
+    background: rgba(0, 207, 255, 0.15);
+    color: #ffffff;
+}
+
+/* ========================================
+   BOTÃO DO ECRÃ DE VITÓRIA
+======================================== */
+
+#nivel-concluido-overlay #voltar-menu-vitoria {
+    display: block;
+
+    width: 100%;
+    max-width: 320px;
+
+    margin: 20px auto 0;
+    padding: 16px 24px;
+
+    box-sizing: border-box;
+
+    background: #00ffab;
+    color: #071624;
+
+    border: 2px solid #00ffab;
+    border-radius: 9px;
+
+    font-family: Arial, sans-serif;
+    font-size: 17px;
+    font-weight: bold;
+    text-align: center;
+
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+#nivel-concluido-overlay #voltar-menu-vitoria:hover {
+    background: #7affd1;
+    border-color: #7affd1;
+    transform: translateY(-2px);
+}

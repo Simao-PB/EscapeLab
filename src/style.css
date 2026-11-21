@@ -457,3 +457,91 @@ canvas {
     border-color: #7affd1;
     transform: translateY(-2px);
 }
+
+/* ========================================
+   BARRA DE VIDA DO BOSS
+   ======================================== */
+
+#boss-hud {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9500;
+
+    width: min(480px, calc(100vw - 32px));
+    box-sizing: border-box;
+    padding: 10px 16px 12px;
+
+    background: rgba(5, 15, 30, 0.92);
+    border: 2px solid #ff304f;
+    border-radius: 10px;
+
+    color: #ffffff;
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+#boss-hud .boss-nome {
+    font-size: 14px;
+    font-weight: bold;
+    letter-spacing: 3px;
+    margin-bottom: 8px;
+    color: #ff8a9b;
+}
+
+#boss-hud .boss-barra {
+    height: 14px;
+    background: #1a0710;
+    border-radius: 7px;
+    overflow: hidden;
+}
+
+#boss-hud .boss-barra-vida {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, #ff304f, #ff8a3d);
+    transition: width 0.15s ease-out;
+}
+
+#boss-hud.boss-fase2 {
+    animation: boss-pulsar 0.6s ease-in-out infinite alternate;
+}
+
+@keyframes boss-pulsar {
+    from { box-shadow: 0 0 6px #ff304f; }
+    to { box-shadow: 0 0 22px #ff304f; }
+}
+
+/* ========================================
+   ENERGIA E ESTADO DA SAÍDA
+   ======================================== */
+
+#energia-hud,
+#estado-porta {
+    position: fixed;
+    left: 20px;
+    z-index: 9000;
+
+    padding: 10px 18px;
+
+    background: rgba(5, 15, 30, 0.9);
+    border: 2px solid #ffd447;
+    border-radius: 8px;
+
+    color: #ffffff;
+    font-family: Arial, sans-serif;
+    font-size: 15px;
+    font-weight: bold;
+
+    pointer-events: none;
+}
+
+#energia-hud {
+    top: 95px;
+}
+
+#estado-porta {
+    top: 150px;
+    border-color: #ff304f;
+}

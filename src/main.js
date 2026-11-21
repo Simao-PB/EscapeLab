@@ -5,6 +5,7 @@ import RAPIER from '@dimforge/rapier2d-compat';
 import Player from './Scripts/Player.js';
 import BulletManager from './Scripts/BulletManager.js';
 import Enemy from './Prefabs/Enemy.js';
+import Boss from './Prefabs/Boss.js';
 import GameManager from './Scripts/GameManager.js';
 import Checkpoint from './Prefabs/Checkpoint.js';
 import MovingPlatform from './Prefabs/MovingPlatform.js';
@@ -18,7 +19,9 @@ import './style.css';
 // ========================================
 
 const INICIO_NIVEL = -9;
-const FIM_NIVEL = 49;
+const FIM_NIVEL = 70;
+const INICIO_ARENA = 50;
+const X_BARREIRA = 49.5;
 const PASSO_FISICA = 1 / 60;
 const Y_CHAO = -3.8;
 
@@ -264,7 +267,12 @@ const plataformas = [
     [18, 0, 2.8],
     [29, -0.9, 2.6],
     [39, -1.1, 2.6],
-    [44, 0, 3]
+    [44, 0, 3],
+
+    // Arena do boss
+    [55, -1.2, 2.4],
+    [60.5, 0.3, 2.6],
+    [65.5, -1.2, 2.4]
 ];
 
 plataformas.forEach(([x, y, largura]) => {
@@ -311,16 +319,29 @@ const player = new Player(cena, mundo);
 
 const bulletManager = new BulletManager(cena);
 
+// (x, y, distância de patrulha, vida)
 const inimigos = [
-    new Enemy(cena, 3, -3.3, 1.8),
-    new Enemy(cena, 13, -3.3, 1.5),
-    new Enemy(cena, 27, -3.3, 1.7),
-    new Enemy(cena, 37, -3.3, 1.4)
+    new Enemy(cena, 3, -3.3, 1.8, 2),
+    new Enemy(cena, 13, -3.3, 1.5, 3),
+    new Enemy(cena, 27, -3.3, 1.7, 3),
+    new Enemy(cena, 37, -3.3, 1.4, 4)
 ];
+
+// Boss final na arena
+const boss = new Boss(
+    cena,
+    64,
+    Y_CHAO,
+    INICIO_ARENA,
+    FIM_NIVEL - 1.5
+);
+
+// Tudo o que pode levar tiros / magoar por contacto
+const alvos = [...inimigos, boss];
 
 const gameManager = new GameManager(
     player,
-    inimigos
+    alvos
 );
 
 let jogoIniciado = false;
@@ -417,7 +438,8 @@ window.addEventListener('keydown', (evento) => {
 
 const checkpoints = [
     new Checkpoint(cena, 16, Y_CHAO),
-    new Checkpoint(cena, 32, Y_CHAO)
+    new Checkpoint(cena, 32, Y_CHAO),
+    new Checkpoint(cena, 52, Y_CHAO)
 ];
 
 let pontoRespawn = {
@@ -455,6 +477,9 @@ function reaparecerNoCheckpoint() {
     );
 
     player.atualizarVisual(0);
+
+    // O boss recua e os ataques no ecrã desaparecem
+    boss.reiniciarAtaques();
 
     atualizarCamera(1);
 }
@@ -642,7 +667,7 @@ function atualizarEnergias(
 // 12. PORTA DE SAÍDA
 // ========================================
 
-const portaX = 47;
+const portaX = 68;
 const portaY = -2.9;
 
 let portaDesbloqueada = false;
@@ -685,9 +710,104 @@ const estadoPorta = criarHUD(
     '🔒 SAÍDA BLOQUEADA'
 );
 
+// ========================================
+// 12.1 BARREIRA DE ENERGIA E ARENA DO BOSS
+// ========================================
+
+const materialBarreira = new THREE.MeshBasicMaterial({
+    color: 0xff304f,
+    transparent: true,
+    opacity: 0.55,
+    depthWrite: false
+});
+
+const objetoBarreira = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.35, 8),
+    materialBarreira
+);
+
+objetoBarreira.position.set(X_BARREIRA, 0.2, 0.9);
+
+cena.add(objetoBarreira);
+
+let colisorBarreira = criarColisorEstatico(
+    X_BARREIRA, 0, 0.35, 12
+);
+
+let barreiraAberta = false;
+let arenaFechada = false;
+
+function abrirBarreira() {
+
+    barreiraAberta = true;
+
+    mundo.removeCollider(colisorBarreira, true);
+    colisorBarreira = null;
+
+    objetoBarreira.visible = false;
+
+    estadoPorta.textContent =
+        '⚠️ BARREIRA ABERTA - ENFRENTA O BOSS';
+}
+
+function fecharArena() {
+
+    arenaFechada = true;
+
+    // A barreira volta a fechar atrás do jogador
+    colisorBarreira = criarColisorEstatico(
+        X_BARREIRA, 0, 0.35, 12
+    );
+
+    objetoBarreira.visible = true;
+
+    // Garantir que o respawn é dentro da arena
+    const checkpointArena = checkpoints[checkpoints.length - 1];
+    checkpointArena.ativar();
+
+    pontoRespawn = {
+        x: checkpointArena.x,
+        y: -3.2
+    };
+
+    estadoPorta.textContent = '💀 DERROTA O SENTINELA X-01';
+
+    boss.ativar();
+}
+
+function verificarEntradaArena(posicao) {
+
+    if (
+        barreiraAberta &&
+        !arenaFechada &&
+        posicao.x > INICIO_ARENA + 3
+    ) {
+        fecharArena();
+    }
+}
+
+function atualizarBarreira(tempo) {
+
+    if (objetoBarreira.visible) {
+        materialBarreira.opacity =
+            0.4 + Math.sin(tempo * 8) * 0.2;
+    }
+}
+
+boss.aoSerDerrotado = () => {
+
+    portaDesbloqueada = true;
+
+    materialPorta.map = texturaPortaAberta;
+    materialPorta.needsUpdate = true;
+
+    estadoPorta.textContent =
+        '🔓 SAÍDA DESBLOQUEADA';
+};
+
 function verificarObjetivos() {
 
-    if (portaDesbloqueada) {
+    if (barreiraAberta) {
         return;
     }
 
@@ -698,17 +818,7 @@ function verificarObjetivos() {
         return;
     }
 
-    portaDesbloqueada = true;
-
-    materialPorta.map = texturaPortaAberta;
-    materialPorta.needsUpdate = true;
-
-    estadoPorta.textContent =
-        '🔓 SAÍDA DESBLOQUEADA';
-
-    console.log(
-        'Objetivos concluídos: porta desbloqueada!'
-    );
+    abrirBarreira();
 }
 
 // ========================================
@@ -770,6 +880,7 @@ function concluirNivel1() {
             <p>
                 ⚡ ${totalEnergias}/${totalEnergias} energias
                 · ✓ ${terminais.length}/${terminais.length} terminais
+                · 💀 Boss derrotado
             </p>
 
             <button
@@ -857,8 +968,13 @@ function atualizarCamera(delta) {
     const metadeVista =
         (camera.right - camera.left) / 2;
 
+    // Dentro da arena a câmara fica presa à zona do boss
+    const inicio = arenaFechada
+        ? INICIO_ARENA
+        : INICIO_NIVEL;
+
     const minimo =
-        INICIO_NIVEL + metadeVista;
+        inicio + metadeVista;
 
     const maximo =
         FIM_NIVEL - metadeVista;
@@ -955,10 +1071,22 @@ function atualizar() {
     // Terminais
     atualizarMensagemTerminal();
 
+    // Vidas antes de qualquer dano neste frame
+    const vidasAntes = gameManager.vidas;
+
     // Inimigos e disparos
     for (const inimigo of inimigos) {
         inimigo.atualizar(delta);
     }
+
+    // Boss (ataca o jogador)
+    boss.atualizar(
+        delta,
+        player.corpoFisico.translation(),
+        gameManager
+    );
+
+    atualizarBarreira(tempoTotal);
 
     player.atualizarDisparo(
         delta,
@@ -967,15 +1095,13 @@ function atualizar() {
 
     bulletManager.atualizar(
         delta,
-        inimigos
+        alvos
     );
 
     // Checkpoints
     atualizarCheckpoints();
 
     // Sistema de vidas
-    const vidasAntes = gameManager.vidas;
-
     gameManager.atualizar(delta);
 
     // Lasers
@@ -1003,6 +1129,7 @@ function atualizar() {
         );
 
         verificarObjetivos();
+        verificarEntradaArena(posicao);
         verificarPorta();
         atualizarCamera(delta);
     }

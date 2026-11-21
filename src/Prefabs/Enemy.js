@@ -1,9 +1,8 @@
-
 import * as THREE from 'three';
 
 export default class Enemy {
 
-    constructor(scene, x, y, distanciaPatrulha = 1.8) {
+    constructor(scene, x, y, distanciaPatrulha = 1.8, vidaMaxima = 3) {
 
         this.scene = scene;
 
@@ -13,7 +12,8 @@ export default class Enemy {
         this.largura = 0.9;
         this.altura = 0.9;
 
-        this.vida = 3;
+        this.vidaMaxima = vidaMaxima;
+        this.vida = vidaMaxima;
         this.ativo = true;
 
         this.velocidade = 1.5;
@@ -24,17 +24,24 @@ export default class Enemy {
 
         this.tempo = 0;
         this.tempoDano = 0;
+        this.tempoMorte = 0;
 
+        // Grupo principal (posição)
         this.objeto = new THREE.Group();
+
+        // Grupo do corpo (vira conforme a direção)
+        this.visual = new THREE.Group();
+        this.objeto.add(this.visual);
 
         this.corpo = new THREE.Mesh(
             new THREE.PlaneGeometry(0.9, 0.9),
             new THREE.MeshBasicMaterial({
-                color: 0xff405d
+                color: 0xff405d,
+                transparent: true
             })
         );
 
-        this.objeto.add(this.corpo);
+        this.visual.add(this.corpo);
 
         for (const posX of [-0.2, 0.2]) {
 
@@ -46,16 +53,88 @@ export default class Enemy {
             );
 
             olho.position.set(posX, 0.1, 0.1);
-            this.objeto.add(olho);
+            this.visual.add(olho);
         }
+
+        // ====================================
+        // BARRA DE VIDA (não vira com o corpo)
+        // ====================================
+
+        this.larguraBarra = 0.9;
+
+        this.barraFundo = new THREE.Mesh(
+            new THREE.PlaneGeometry(this.larguraBarra + 0.06, 0.16),
+            new THREE.MeshBasicMaterial({ color: 0x111111 })
+        );
+
+        this.barraFundo.position.set(0, 0.7, 0.2);
+
+        this.barraVida = new THREE.Mesh(
+            new THREE.PlaneGeometry(this.larguraBarra, 0.1),
+            new THREE.MeshBasicMaterial({ color: 0x3dff6e })
+        );
+
+        this.barraVida.position.set(0, 0.7, 0.25);
+
+        this.objeto.add(this.barraFundo, this.barraVida);
+
+        this.atualizarBarraVida();
 
         this.objeto.position.set(x, y, 0.6);
         this.scene.add(this.objeto);
     }
 
+    // ====================================
+    // BARRA DE VIDA
+    // ====================================
+
+    atualizarBarraVida() {
+
+        const percentagem = Math.max(0, this.vida / this.vidaMaxima);
+
+        // Encolher a barra a partir da esquerda
+        this.barraVida.scale.x = Math.max(0.0001, percentagem);
+        this.barraVida.position.x =
+            -this.larguraBarra * (1 - percentagem) / 2;
+
+        // Verde -> amarelo -> vermelho
+        let cor = 0x3dff6e;
+
+        if (percentagem <= 0.34) {
+            cor = 0xff3b3b;
+        } else if (percentagem <= 0.67) {
+            cor = 0xffd447;
+        }
+
+        this.barraVida.material.color.setHex(cor);
+
+        // Só mostrar a barra depois do primeiro dano
+        const visivel = percentagem < 1;
+        this.barraFundo.visible = visivel;
+        this.barraVida.visible = visivel;
+    }
+
     atualizar(delta) {
 
-        if (!this.ativo) return;
+        // Pequena animação de morte
+        if (!this.ativo) {
+
+            if (this.tempoMorte > 0) {
+
+                this.tempoMorte -= delta;
+
+                const t = Math.max(0, this.tempoMorte / 0.35);
+
+                this.objeto.scale.set(t, t, 1);
+                this.corpo.material.opacity = t;
+
+                if (this.tempoMorte <= 0) {
+                    this.scene.remove(this.objeto);
+                }
+            }
+
+            return;
+        }
 
         this.tempo += delta;
 
@@ -78,7 +157,7 @@ export default class Enemy {
         this.objeto.position.y =
             this.y + Math.sin(this.tempo * 5) * 0.04;
 
-        this.objeto.scale.x = this.direcao;
+        this.visual.scale.x = this.direcao;
 
         if (this.tempoDano > 0) {
 
@@ -98,7 +177,7 @@ export default class Enemy {
         this.vida -= dano;
         this.tempoDano = 0.15;
 
-        console.log(`Vida do inimigo: ${this.vida}`);
+        this.atualizarBarraVida();
 
         if (this.vida <= 0) {
             this.morrer();
@@ -108,9 +187,9 @@ export default class Enemy {
     morrer() {
 
         this.ativo = false;
+        this.tempoMorte = 0.35;
 
-        this.scene.remove(this.objeto);
-
-        console.log('Inimigo eliminado!');
+        this.barraFundo.visible = false;
+        this.barraVida.visible = false;
     }
 }

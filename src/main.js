@@ -270,9 +270,10 @@ const plataformas = [
     [44, 0, 3],
 
     // Arena do boss
-    [55, -1.2, 2.4],
-    [60.5, 0.3, 2.6],
-    [65.5, -1.2, 2.4]
+    // Arena do boss
+    [55, -2, 2.4],
+    [60.5, -0.5, 2.6],
+    [65.5, -2, 2.4]
 ];
 
 plataformas.forEach(([x, y, largura]) => {

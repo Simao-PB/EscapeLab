@@ -42,7 +42,7 @@ export default class Boss {
         this.limiteEsquerdo = limiteEsquerdo;
         this.limiteDireito = limiteDireito;
 
-        this.vidaMaxima = 25;
+        this.vidaMaxima = 15;
         this.vida = this.vidaMaxima;
 
         // "ativo" = pode levar dano e causar dano por contacto
@@ -320,7 +320,7 @@ export default class Boss {
         this.tempoEstado += delta;
 
         const fase2 = this.estaNaFase2();
-        const rapidez = fase2 ? 1.4 : 1;
+        const rapidez = fase2 ? 1.2 : 1;
 
         switch (this.estado) {
 
@@ -382,7 +382,7 @@ export default class Boss {
 
     estadoAviso(rapidez, posicaoJogador) {
 
-        const duracao = 0.7 / rapidez;
+        const duracao = 1.0 / rapidez;
 
         // Descer para a altura de ataque enquanto avisa
         const t = Math.min(1, this.tempoEstado / duracao);
@@ -412,7 +412,7 @@ export default class Boss {
 
         } else {
 
-            this.disparosRestantes = this.estaNaFase2() ? 5 : 3;
+            this.disparosRestantes = this.estaNaFase2() ? 3 : 2;
             this.tempoEntreDisparos = 0;
 
             this.mudarEstado('disparar');
@@ -437,7 +437,7 @@ export default class Boss {
         }
 
         this.disparosRestantes--;
-        this.tempoEntreDisparos = fase2 ? 0.28 : 0.45;
+        this.tempoEntreDisparos = fase2 ? 0.45 : 0.6;
 
         // Disparar do canhão do lado do jogador
         const lado = posicaoJogador.x < this.x ? -1 : 1;
@@ -447,7 +447,7 @@ export default class Boss {
             y: this.y - 0.35
         };
 
-        const velocidade = fase2 ? 7.5 : 6;
+        const velocidade = fase2 ? 5.5 : 4.5;
 
         this.criarProjetil(origem, posicaoJogador, velocidade, 0);
 
@@ -493,7 +493,7 @@ export default class Boss {
             this.y = this.yChao + this.altura / 2;
 
             // Criar ondas de choque para os dois lados
-            const velocidadeOnda = this.estaNaFase2() ? 8 : 6.5;
+            const velocidadeOnda = this.estaNaFase2() ? 6 : 5;
 
             this.criarOnda(this.x - this.largura / 2, -1, velocidadeOnda);
             this.criarOnda(this.x + this.largura / 2, 1, velocidadeOnda);
@@ -505,7 +505,7 @@ export default class Boss {
     estadoImpacto(rapidez, posicaoJogador) {
 
         // Fica um momento no chão (boa altura para levar tiros!)
-        const duracao = 1.1 / rapidez;
+        const duracao = 1.8 / rapidez;
 
         if (this.tempoEstado < duracao) {
             return;
